@@ -11,6 +11,21 @@ const canvas = document.querySelector('canvas.webgl')
 // Scene
 const scene = new THREE.Scene()
 
+//textures
+const textureLoader = new THREE.TextureLoader()
+//const doorColorTexture = textureLoader.load('/textures/door/color.jpg')
+const doorAlphaTexture = textureLoader.load('/textures/door/alpha.jpg')
+const doorAmbientOcclusionTexture = textureLoader.load('/textures/door/ambientOcclusion.jpg')
+const doorHeightTexture = textureLoader.load('/textures/door/height.jpg')
+const doorNormalTexture = textureLoader.load('/textures/door/normal.jpg')
+const doorMetalnessTexture = textureLoader.load('/textures/door/metalness.jpg')
+const doorRoughnessTexture = textureLoader.load('/textures/door/roughness.jpg')
+//const matcapTexture = textureLoader.load('/textures/matcaps/8.png')
+const gradientTexture = textureLoader.load('/textures/gradients/5.jpg')
+
+//doorColorTexture.colorSpace = THREE.sRGBEncoding
+//matcapTexture.colorSpace = THREE.sRGBEncoding
+
 //axeshelper
 const axesHelper = new THREE.AxesHelper(3)
 scene.add(axesHelper)
@@ -18,21 +33,42 @@ scene.add(axesHelper)
 /**
  * Object
  */
-const loadingManager = new THREE.LoadingManager()
-const textureLoader = new THREE.TextureLoader(loadingManager)
-const texture = textureLoader.load('/textures/checkerboard-1024x1024.png')
+const doorColorTexture = textureLoader.load(
+    '/textures/door/color.jpg',
+    () => {
+        console.log('Texture loaded successfully');
+        doorColorTexture.colorSpace = THREE.SRGBColorSpace;
+    })
+const matcapTexture = textureLoader.load(
+    '/textures/matcaps/8.png',
+    () => {
+        console.log('Texture loaded successfully');
+        matcapTexture.colorSpace = THREE.SRGBColorSpace;
+    })
 
-texture.wrapS = THREE.RepeatWrapping
-texture.wrapT = THREE.RepeatWrapping
+const material = new THREE.MeshBasicMaterial()
+material.map = doorColorTexture
 
-texture.generateMipmaps = false;
-texture.minFilter = THREE.NearestFilter //checkout substance designer
+const sphereMesh = new THREE.Mesh(
+    new THREE.SphereGeometry(0.5, 16, 16),
+    material
+)
+const planeMesh = new THREE.Mesh(
+    new THREE.PlaneGeometry(1, 1),
+    material
+)
+const torusMesh = new THREE.Mesh(
+    new THREE.TorusGeometry(0.6, 0.2, 16, 32),
+    material
+)
 
-const geometry = new THREE.BoxGeometry(1, 1, 1)
-const material = new THREE.MeshBasicMaterial({ map: texture })
-//const material = new THREE.MeshBasicMaterial({ color: 0xff0000 })
-const mesh = new THREE.Mesh(geometry, material)
-scene.add(mesh)
+//transforms
+sphereMesh.position.x = -1.5
+planeMesh.position.x = 0
+torusMesh.position.x = 1.5
+
+//add to scene
+scene.add(sphereMesh, planeMesh, torusMesh)
 
 /**
  * Sizes
@@ -64,7 +100,7 @@ window.addEventListener('resize', () =>
 const camera = new THREE.PerspectiveCamera(75, sizes.width / sizes.height, 0.1, 100)
 camera.position.x = 1
 camera.position.y = 1
-camera.position.z = 1
+camera.position.z = 2
 scene.add(camera)
 
 // Controls
@@ -94,6 +130,15 @@ const tick = () =>
 
     // Render
     renderer.render(scene, camera)
+
+    //rotation
+    sphereMesh.rotation.x = 0.15* elapsedTime
+    planeMesh.rotation.x = 0.15* elapsedTime
+    torusMesh.rotation.x = 0.15* elapsedTime
+
+    sphereMesh.rotation.y = 0.1* elapsedTime
+    planeMesh.rotation.y = 0.1* elapsedTime
+    torusMesh.rotation.y = 0.1* elapsedTime
 
     // Call tick again on the next frame
     window.requestAnimationFrame(tick)
