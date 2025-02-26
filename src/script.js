@@ -14,17 +14,97 @@ const canvas = document.querySelector('canvas.webgl')
 // Scene
 const scene = new THREE.Scene()
 
+
+
 /**
  * Lights
  */
-const ambientLight = new THREE.AmbientLight(0xffffff, 1.5)
+// const ambientLight = new THREE.AmbientLight(0xffffff, 1.5)
+// scene.add(ambientLight)
+
+const ambientLight = new THREE.AmbientLight(0xffffff, 0.5)
 scene.add(ambientLight)
 
-const pointLight = new THREE.PointLight(0xffffff, 50)
-pointLight.position.x = 2
-pointLight.position.y = 3
-pointLight.position.z = 4
+const directionalLight = new THREE.DirectionalLight(0x00ff00, 0.9)
+directionalLight.position.set(1, 0.25, 0)
+scene.add(directionalLight)
+
+const controlDirectionalLight = gui.addFolder('Directional Light')
+controlDirectionalLight.add(directionalLight.position, 'x').min(-5).max(5).step(0.01)
+controlDirectionalLight.add(directionalLight.position, 'y').min(-5).max(5).step(0.01)
+controlDirectionalLight.add(directionalLight.position, 'z').min(-5).max(5).step(0.01)
+controlDirectionalLight.add(directionalLight, 'intensity').min(0).max(1).step(0.01)
+controlDirectionalLight.addColor(directionalLight, 'color')
+
+const hemisphereLight = new THREE.HemisphereLight(0xffff00, 0x0000ff, 1)  
+scene.add(hemisphereLight)
+
+const controlHemisphereLight = gui.addFolder('Hemisphere Light')
+controlHemisphereLight.add(hemisphereLight, 'intensity').min(0).max(1).step(0.01)
+controlHemisphereLight.addColor(hemisphereLight, 'groundColor')
+
+const pointLight = new THREE.PointLight(0xff0000, 0.5, 10, 2)
+pointLight.position.set(1, 1, 1)
 scene.add(pointLight)
+
+const controlPointLight = gui.addFolder('Point Light')
+controlPointLight.add(pointLight.position, 'x').min(-5).max(5).step(0.01)
+controlPointLight.add(pointLight.position, 'y').min(-5).max(5).step(0.01)
+controlPointLight.add(pointLight.position, 'z').min(-5).max(5).step(0.01)
+controlPointLight.add(pointLight, 'intensity').min(0).max(1).step(0.01)
+controlPointLight.add(pointLight, 'distance').min(0).max(10).step(0.01)
+controlPointLight.add(pointLight, 'decay').min(0).max(10).step(0.01)
+controlPointLight.addColor(pointLight, 'color')
+
+const spotLight = new THREE.SpotLight(0x78ff00, 0.5, 10, 10)
+spotLight.position.set(0, 2, 3)
+scene.add(spotLight)
+
+const controlSpotLight = gui.addFolder('Spot Light')
+controlSpotLight.add(spotLight.position, 'x').min(-5).max(5).step(0.01)
+controlSpotLight.add(spotLight.position, 'y').min(-5).max(5).step(0.01)
+controlSpotLight.add(spotLight.position, 'z').min(-5).max(5).step(0.01)
+controlSpotLight.add(spotLight, 'intensity').min(0).max(1).step(0.01)
+controlSpotLight.add(spotLight, 'distance').min(0).max(10).step(0.01)
+controlSpotLight.add(spotLight, 'decay').min(0).max(10).step(0.01)
+controlSpotLight.add(spotLight, 'angle').min(0).max(Math.PI).step(0.01)
+controlSpotLight.add(spotLight, 'penumbra').min(0).max(1).step(0.01)
+controlSpotLight.addColor(spotLight, 'color')
+
+const rectAreaLight = new THREE.RectAreaLight(0x4e00ff, 1, 1, 1)
+rectAreaLight.position.set(1, 0, 1)
+rectAreaLight.lookAt(new THREE.Vector3())
+scene.add(rectAreaLight)
+
+const controlRectAreaLight = gui.addFolder('Rect Area Light')
+controlRectAreaLight.add(rectAreaLight.position, 'x').min(-5).max(5).step(0.01)
+controlRectAreaLight.add(rectAreaLight.position, 'y').min(-5).max(5).step(0.01)
+controlRectAreaLight.add(rectAreaLight.position, 'z').min(-5).max(5).step(0.01)
+controlRectAreaLight.add(rectAreaLight, 'intensity').min(0).max(1).step(0.01)
+controlRectAreaLight.add(rectAreaLight, 'width').min(0).max(10).step(0.01)
+controlRectAreaLight.add(rectAreaLight, 'height').min(0).max(10).step(0.01)
+controlRectAreaLight.addColor(rectAreaLight, 'color')
+
+// const hemisphereLightHelper = new THREE.HemisphereLightHelper(hemisphereLight, 0.2)
+// scene.add(hemisphereLightHelper)
+
+// const directionalLightHelper = new THREE.DirectionalLightHelper(directionalLight, 0.2)
+// scene.add(directionalLightHelper)
+
+// const pointLightHelper = new THREE.PointLightHelper(pointLight, 0.2)
+// scene.add(pointLightHelper)
+
+const spotLightHelper = new THREE.SpotLightHelper(spotLight)
+scene.add(spotLightHelper)
+
+// const rectAreaLightHelper = new THREE.RectAreaLightHelper(rectAreaLight)
+// scene.add(rectAreaLightHelper)
+
+// const pointLight = new THREE.PointLight(0xffffff, 50)
+// pointLight.position.x = 2
+// pointLight.position.y = 3
+// pointLight.position.z = 4
+// scene.add(pointLight)
 
 /**
  * Objects
@@ -124,6 +204,8 @@ const tick = () =>
     cube.rotation.x = 0.15 * elapsedTime
     torus.rotation.x = 0.15 * elapsedTime
 
+
+    spotLightHelper.update()
     // Update controls
     controls.update()
 
